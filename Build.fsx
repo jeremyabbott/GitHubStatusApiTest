@@ -36,27 +36,30 @@ let gitRootUrl = "https://api.github.com"
 let gitStatusEndPoint = "repos/jeremyabbott/GitHubStatusApiTest/statuses"
 
 Target "Test" (fun _ -> 
-    let hash = getCurrentHash()
+    let hash = Fake.Git.Information.getCurrentSHA1 "./"
+
     trace <| hash)
 
 Target "PostStatus" (fun _ -> 
-    let token = "test"
-    let url = sprintf "%s/%s/%s" gitRootUrl gitStatusEndPoint (getCurrentHash())
-    let state = Pending |> stateString
+    let token = getBuildParamOrDefault "token" "test"
+    let url = sprintf "%s/%s/%s" gitRootUrl gitStatusEndPoint (getCurrentSHA1 "./")
+
+    let state = Error |> stateString
     let status = {
         state = state
         target_url = ""
-        description = "test"
-        context = "/shrug"
+        description = "test error"
+        context = "Fake error"
     }
 
     let body = JsonConvert.SerializeObject(status) |> TextRequest
+    printfn "%A" body
     printfn "%s" url
     let request =
         Http.Request 
             (url = url, headers = [ContentType HttpContentTypes.Json; UserAgent "FSharp.Data - Fake"], query=["access_token", token], body=body)
 
-    printfn "%A" request
+    
     ())
 
 RunTargetOrDefault "Test"
