@@ -54,7 +54,7 @@ Target "PostStatus" (fun _ ->
     printfn "%s" url
     let request =
         Http.Request 
-            (url = url, headers = [ContentType HttpContentTypes.Json], query=["access_token", token], body=body)
+            (url = url, headers = [ContentType HttpContentTypes.Json; UserAgent "FSharp.Data - Fake"], query=["access_token", token], body=body)
 
     printfn "%A" request
     ())
